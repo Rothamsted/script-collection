@@ -1,0 +1,1 @@
+3002sub1R1_25.fastq,3002sub1R2_25.fastq
