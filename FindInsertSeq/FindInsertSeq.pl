@@ -4,28 +4,48 @@ use strict;
 use warnings;
 
 ##requirements
-#bowtie2 and samtools in path
+#bowtie2 and samtools in path or novoalign in folder and samtools in path
 ##commands
 #dos2unix Reads.txt
-#./FindSeq_bow.pl plasmid1.fasta RRes_GZ.fasta
+##Using bowtie as the mapper as below otherwise replace bowtie with novoalign
+#./FindInsertSeq.pl plasmid1.fasta RRes_GZ.fasta bowtie
 #novoalign is a more accurate mapper and preferred but not multi-threaded without buying the licence, in this example bowtie does not show the deletion because two reads cover it which are missmappings
 #TEST DATA
 #The reference genome information for F. graminearum strain PH-1 (NRRL 31084) is available at GenBank under accession AACM00000000 (Cuomo et al., 2007).
 #Whole-genome sequencing information for the strains described in this study are available at the Sequence Read Archive (SRA). Accession numbers are: ERS430784 (DAF139), ERS430785 (DAF140), ERS430786 (DAF141), ERS430787 (TP11.1). 
 
 #get plasmid and genome fasta files (needs to be in same directory as perl script)
-my ($plasmidRef, $genomeRef) = @ARGV;
+my ($plasmidRef, $genomeRef, $mapper) = @ARGV;
 
 return if (not defined($plasmidRef));
 return if (not defined($genomeRef));
+return if (not defined($mapper));
 
-#index plasmid
-print "bowtie2-build $plasmidRef plasmid.ndx\n";
-system("bowtie2-build $plasmidRef plasmid.ndx") == 0  or die "system indexing plasmid failed: $?";
+if ($mapper =~ "bowtie") {
 
-#index genome reference
-print "bowtie2-build $genomeRef genome.ndx\n";
-system("bowtie2-build $genomeRef genome.ndx") == 0  or die "system indexing genomic reference failed: $?";
+	#index plasmid
+	print "bowtie2-build $plasmidRef plasmid.ndx\n";
+	system("bowtie2-build $plasmidRef plasmid.ndx") == 0  or die "system indexing plasmid failed: $?";
+
+	#index genome reference
+	print "bowtie2-build $genomeRef genome.ndx\n";
+	system("bowtie2-build $genomeRef genome.ndx") == 0  or die "system indexing genomic reference failed: $?";
+
+}elsif ($mapper =~ "novoalign"){
+	
+	#index plasmid
+	print "./novoindex plasmid.ndx $plasmidRef\n";
+	system("./novoindex plasmid.ndx $plasmidRef") == 0  or die "system indexing plasmid failed: $?";
+
+	#index genome reference
+	print "./novoindex genome.ndx $genomeRef\n";
+	system("./novoindex genome.ndx $genomeRef") == 0  or die "system indexing genomic reference failed: $?";
+
+}else {
+	print "unknown mapper provided, bowtie or novoalign are only supported";
+	exit;
+}
+
 
 
 print "+++++ STEP 1 +++++\n";
@@ -36,8 +56,19 @@ open (READS, "<Reads.txt");
 while (<READS>) {
 	chomp;
 	my ($reads1, $reads2) = split /,/;
-	print "bowtie2 -p 20 -x plasmid.ndx -1 $reads1 -2 $reads2 -S $reads1.sam\n";
-	system("bowtie2 -p 20 -x plasmid.ndx -1 $reads1 -2 $reads2 -S $reads1.sam") == 0  or die "system Bowtie2 failed: $?";
+	
+	
+	if ($mapper=~"bowtie") {
+		print "bowtie2 -p 20 -x plasmid.ndx -1 $reads1 -2 $reads2 -S $reads1.sam\n";
+		system("bowtie2 -p 20 -x plasmid.ndx -1 $reads1 -2 $reads2 -S $reads1.sam") == 0  or die "system Bowtie2 failed: $?";
+	}elsif ($mapper =~ "novoalign"){
+		print "./novoalign -d plasmid.ndx -f $reads1 $reads2 -o SAM  2>$reads1.stats > $reads1.sam\n";
+		system("./novoalign -d plasmid.ndx -f $reads1 $reads2 -o SAM  2>$reads1.stats > $reads1.sam") == 0  or die "system Novoalign failed: $?";
+	}else{
+		#do nothing as taken care of at start	
+	}
+	
+	
 	print "samtools view -uhS $reads1.sam | samtools sort - $reads1.sort\n";
 	system("samtools view -uhS $reads1.sam | samtools sort - $reads1.sort") == 0  or die "system samtools sam to bam: $?";
 	#print "samtools sort $reads1.bam $reads1.sort\n";
@@ -68,46 +99,42 @@ foreach my $SAM (@SAMdata){
 	print "samtools index unmapped_$SAM.sort.bam\n";
 	system("samtools index unmapped_$SAM.sort.bam") == 0  or die "system samtools index: $?";
 
+	#create mpileup file for peak detection 
+	print "samtools mpileup -BQ 0 unmapped_$SAM.sort.bam > unmapped_$SAM.sort.bam.mpileup\n";
+	system("samtools mpileup -BQ 0 unmapped_$SAM.sort.bam > unmapped_$SAM.sort.bam.mpileup") == 0  or die "system samtools mpileup: $?";
+	
 	print "\n****PAIRED READ SET $SAM COMPLETED****\n\n";
 
-#hash
-my %Chrom;
-#used to make key unique
-my $counter=0;
+	#hash
+	my %Chrom;
+	#used to make key unique
+	my $counter=0;
 
-open (READS, "<unmapped_$SAM.sam");
-while (<READS>) {
-	chomp;
-	if($_ =~ /^@/){
-		next;
+	open (READS, "<unmapped_$SAM.sam");
+	while (<READS>) {
+		chomp;
+		if($_ =~ /^@/){
+			next;
+		}
+		#split columns by tabs
+		my @col = split /\t/;
+
+		#key is made unique by addition to name of counter and both key and value added to hash (probably simple way of doing this but works fine)
+		#don't include unmapped reads
+		if ($col[3] != 0){
+			$Chrom{$col[2].":".$counter} = $col[3];
+			$counter++;
+		}
 	}
-	#split columns by tabs
-	my @col = split /\t/;
-
-#key is made unique by addition to name of counter and both key and value added to hash (probably simple way of doing this but works fine)
-#don't include unmapped reads
-if ($col[3] != 0){
-$Chrom{$col[2].":".$counter} = $col[3];
-$counter++;
-}
-}
-close(READS);	
+	close(READS);	
 
 
-my $filename = "unmapped_$SAM\.sort\.bam\.txt";
-#print the hash to screen and collate results to files
-open FILE, ">$filename" or die "Could not open file '$filename' $!";
-foreach my $name (sort { $Chrom{$a} <=> $Chrom{$b} or $a cmp $b } keys %Chrom) {
-    
-	my ($a,$b)=split(/:/, $name);
-	print $a . "\t" . $Chrom{$name} . "\n";
-	print FILE "$a" . "\t" . $Chrom{$name} . "\n";
-}
-
-close FILE;
-
-
-print "\n****Visualise your BAM file in Tablet using the common chromosome and positions entrys displayed in report files****\n\n";
+	#print the hash to screen
+	foreach my $name (sort { $Chrom{$a} <=> $Chrom{$b} or $a cmp $b } keys %Chrom) {    
+		my ($a,$b)=split(/:/, $name);
+		#Total ordered mapped reads for user to eyeball location quickly for tablet view and for problem checks
+		print $a . "\t" . $Chrom{$name} . "\n";	
+	}
 
 }
 
