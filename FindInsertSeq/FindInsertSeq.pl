@@ -6,7 +6,7 @@ use warnings;
 ##requirements
 #bowtie2 and samtools in path or novoalign in folder and samtools in path
 ##commands
-#dos2unix Reads.txt
+#dos2unix test_data/Reads.txt
 ##Using bowtie as the mapper as below otherwise replace bowtie with novoalign
 #./FindInsertSeq.pl plasmid1.fasta RRes_GZ.fasta bowtie
 #novoalign is a more accurate mapper and preferred but not multi-threaded without buying the licence, in this example bowtie does not show the deletion because two reads cover it which are missmappings
@@ -52,7 +52,7 @@ print "+++++ STEP 1 +++++\n";
 
 my @SAMdata;
 
-open (READS, "<Reads.txt");
+open (READS, "<test_data/Reads.txt");
 while (<READS>) {
 	chomp;
 	my ($reads1, $reads2) = split /,/;
