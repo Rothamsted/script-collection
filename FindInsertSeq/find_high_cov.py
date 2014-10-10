@@ -47,7 +47,7 @@ if __name__ == '__main__':
         window = args.window
         file = args.mpileup_file
         (loci, beg) = findMaxCov(file, window)
-        print('Found max coverage window of size {} at: {} {} - {}'.format(window, loci, beg, beg + window))
+        print('Found max coverage window of size', window, 'at:', loci, beg, '-', beg + window)
 
 
 
