@@ -22,7 +22,7 @@ Go to the location where the FindInsertSeq folder is:
 
 cd [download filename]/FindInsertSeq
 
-Get the sample data files from below and place in the FindSeq directory:
+Get the sample data files from below and place in the FindSeq directory below. Please note these files have been reduced to 10% the original size but are still 600 Mb total. They were not reduced further because it's important to retain coverage across the plasmid and genomic sequence to demonstrate the observation of plasmid insertion copy number by comparison with the genomic coverage and that there were no large scale deletions events across the genome using this example.
 https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=6b600b040d42a3e31f126da37119d01d
 
 Here you should find 2 scripts for FindSeq either using novoalign (FindSeq_Novo.pl) if you have it or Bowtie2 (FindSeq_bow2.pl), a Reads.txt file which contains your set of paired read filenames separated by a comma, and sample data "3002subR1_25.fastq", "3002subR2_25.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
