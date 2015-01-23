@@ -27,14 +27,13 @@ https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=6b600b040d42a3e31f
 A further smaller file is available here however this will just test the insertion point and plasmid coverage as I filtered the reads that map to the plasmid.
 https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=c12fcf15ca672a2fade4eb5a426b5950
 
-Put either the small or larger dataset into the same folder that contains the Reads.txt file "/FindInsertSeq directory/test_data/"
-The larger file download link will contain: sample data "3002subR1_25.fastq", "3002subR2_25.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
-The smaller file download link will contain: sample data "3002subR1_small.fastq", "3002subR2_small.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
+Put the "FindInsertSeq.pl" file into the same folder as the data set you downloaded:
+The larger file download link will contain: list of fastq read "Reads.txt", sample data "3002subR1_25.fastq", "3002subR2_25.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
+The smaller file download link will contain: list of fastq read "Reads.txt", sample data "3002subR1_small.fastq", "3002subR2_small.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
 
 Open the "Reads.txt" file and you will see the names of the left and right fastq files separated by a comma that matches the sample data. If you change this file by adding additional or different paired data in windows make sure it is in linux format by doing a "dos2unix Reads.txt".
-If using the small data set change the Reads.txt file to:
-3002subR1_small.fastq,3002subR2_small.fastq
 
+Navigate to the folder that contains your data and FindInsertSeq.pl script using "cd /PATH/".
 Run the FindInsertSeq script by typing:
 [The script] [plasmid sequence] [genomic reference sequence]
 ./FindInsertSeq.pl plasmid1.fasta RRes_GZ.fasta bowtie
