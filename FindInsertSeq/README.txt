@@ -25,7 +25,7 @@ cd [download filename]/FindInsertSeq
 Get the sample data files from below and place in the FindSeq directory below. Please note these files have been reduced to 10% the original size but are still 600 Mb total. Please use this file if able because it's important to retain coverage across the plasmid and genomic sequence to demonstrate the observation of plasmid insertion copy number by comparison with the genomic coverage and that there were no large scale deletions events across the genome using this example.
 https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=6b600b040d42a3e31f126da37119d01d
 A further smaller file is available here however this will just test the insertion point and plasmid coverage as I filtered the reads that map to the plasmid.
-https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=small
+https://rrescloud.rothamsted.ac.uk/public.php?service=files&t=c12fcf15ca672a2fade4eb5a426b5950
 
 The larger file download link will contain: Reads.txt file which contains your set of paired read filenames separated by a comma, and sample data "3002subR1_25.fastq", "3002subR2_25.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
 The smaller file download link will contain: Reads.txt file which contains your set of paired read filenames separated by a comma, and sample data "3002subR1_small.fastq", "3002subR2_small.fastq", "plasmid1.fasta", "RRes_GZ.fasta".
