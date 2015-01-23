@@ -52,7 +52,7 @@ print "+++++ STEP 1 +++++\n";
 
 my @SAMdata;
 
-open (READS, "<test_data/Reads.txt");
+open (READS, "<Reads.txt");
 while (<READS>) {
 	chomp;
 	my ($reads1, $reads2) = split /,/;
