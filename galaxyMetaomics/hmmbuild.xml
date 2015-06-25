@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<tool id="HMMBUILD" name="Step 4: HMMBUILD" version="Hmmer 3.1 beta">
+  
+  <requirements>
+  </requirements>
+  <description>- profile HMM construction from multiple sequence alignments</description>
+  <command>
+ 
+ ## Begin hmmbuild command line
+    
+  hmmbuild
+  --cpu $numthreads
+  $filetype_selector 
+  #if str($params.settingsType) == "full":
+  	--symfrac $params.definesymfrac
+  	--fragthresh $params.definefragthresh
+       #if str($params.evalue_calibration.evalue_calibration_selector) == "yes":
+           --EmL $params.evalue_calibration.EmL
+           --EmN $params.evalue_calibration.EmN
+           --EvL $params.evalue_calibration.EvL
+           --EvN $params.evalue_calibration.EvN
+           --EfL $params.evalue_calibration.EfL
+           --EfN $params.evalue_calibration.EfN
+           --Eft $params.evalue_calibration.Eft
+       #end if
+       #if str($params.weighting.weighting_selector) == "rsw":
+           #if str($params.weighting.rweighting.relativeWeight_selector) == "wblosum":
+              --$params.weighting.rweighting.relativeWeight_selector
+              --wid $params.weighting.rweighting.wid
+           #else
+              --$params.weighting.rweighting.relativeWeight_selector
+           #end if
+       #elif str($params.weighting.weighting_selector) == "esw":
+           #if str($params.weighting.eweighting.effectiveWeight_selector) == "eent":
+              --$params.weighting.eweighting.effectiveWeight_selector
+              --ere $params.weighting.eweighting.ere
+              --esigma $params.weighting.eweighting.esigma
+           #elif str($params.weighting.eweighting.effectiveWeight_selector) == "eclust":
+              --$params.weighting.eweighting.effectiveWeight_selector
+              --eid $params.weighting.eweighting.eid
+           #elif str($params.weighting.eweighting.effectiveWeight_selector) == "eset":
+              --eset $params.weighting.eweighting.eset
+           #else
+              --$params.weighting.eweighting.effectiveWeight_selector 
+           #end if
+       #end if
+  #end if
+  -o $aligned_out
+  $hmmfile
+  $msafile 
+  </command>
+  
+  <inputs>
+      <param name="numthreads" type="integer" value="4" label="Number of CPU" help="Number of parallel CPU workers for multithreads "/>
+      <param name="filetype_selector" type="select" display="radio" label="File type" help="Specify that all sequences in seqfile are proteins or DNA or RNA ">
+        <option  selected = "yes" value="--amino">Amino</option>
+        <option value="--dna">DNA</option>
+        <option value="--rna">RNA</option>
+      </param>  
+    <param name="msafile" type="data" format="txt" label="MSA file" help="Specify alignment file in stockholm format"/>
+    <conditional name="params">
+	<param name="settingsType" type="select" label="HMMBUILD settings to use" help="You can use the default settings or set custom values for any of hmmbuild's parameters.">
+ 		<option value="preSet">Use Defaults</option>
+		<option value="full">Full parameter list</option>
+ 	</param>
+ 	<when value="preSet" />
+ 	<!-- Full/advanced params. -->
+     <when value="full">
+  		<param name="definesymfrac" type="float" value="0.5" label="Symbol fraction" help="Define the residue fraction threshold necessary to define a consensus column
+when using the --fast option. The default is 0.5. The symbol fraction in each
+column is calculated after taking relative sequence weighting into account, and ignoring
+gap characters corresponding to ends of sequence fragments (as opposed
+to internal insertions/deletions). Setting this to 0.0 means that every alignment column
+will be assigned as consensus, which may be useful in some cases. Setting it
+to 1.0 means that only columns that include 0 gaps (internal insertions/deletions)
+will be assigned as consensus" />
+              <param name="definefragthresh" type="float" value="0.5" label="Fragment threshold" help="Tag sequence as a fragment" />
+        
+   <!-- Control of E-value calibration -->
+   <conditional name="evalue_calibration">
+   	 <param name="evalue_calibration_selector" type="select" label="Do you want to Use E-value calibration controls" help="Control of E-value calibration">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="EmL" type="integer" value="200" label="Length of sequences for MSV Gumbel" help="length of sequences for MSV Gumbel mu fit" />
+            <param name="EmN" type="integer" value="200" label="Number of sequences for MSV Gumbel" help="number of sequences for MSV Gumbel mu fit " />
+            <param name="EvL" type="integer" value="200" label="Length of sequences for Viterbi Gumbel" help="length of sequences for Viterbi Gumbel mu fit" />
+            <param name="EvN" type="integer" value="200" label="Number of sequences for Viterbi Gumbel" help="number of sequences for Viterbi Gumbel mu fit " />
+            <param name="EfL" type="integer" value="200" label="Length of sequences for Forward exp tail" help="length of sequences for Forward exp tail tau fit " />
+            <param name="EfN" type="integer" value="200" label="Number of sequences for Forward exp tail" help="number of sequences for Forward exp tail tau fit " />
+            <param name="Eft" type="float" value="0.04" label="Tail mass for Forward exponential tail" help="tail mass for Forward exponential tail tau fit " />
+   	 </when>
+       <when value="no" />
+    </conditional> <!-- E-value Calibration -->
+
+       <conditional name="weighting">
+   	 <param name="weighting_selector" type="select" label="Do you want to Use any sequence weighting strategies" help="Using alteranative relative or effective sequence weighting strategies">
+   	    <option value="rsw">Alternative relative sequence weighting</option>
+           <option value="esw">Alternative effective sequence weighting</option>
+   	    <option value="no" selected="True">Default</option>
+   	 </param>
+       <when value="rsw">
+              <conditional name="rweighting">
+		<param name="relativeWeight_selector" type="select" label="Sequence weighting strategies" help=" Alternative relative sequence weighting">
+        		<option  selected = "yes" value="wpb">Henikoff position-based sequence weighting scheme</option>
+        		<option value="wgsc">Gerstein/Sonnhammer/Chothia weighting algorithm</option>
+        		<option value="wblosum">Use the same clustering scheme that was used to weight data in calculating BLOSUM subsitution matrices</option>
+      			<option  value="wnone">No relative weights. All sequences are assigned uniform weight.</option>
+      			<option  value="wgiven">Use weights as given in MSA file</option>
+      		</param> 
+    		<when value ="wblosum">
+   	 		<param name="wid" type="float" value="0.62" label="Identity cutoff" help="For Blosum set identity cutoff " />
+   		</when>
+            </conditional>  <!-- Relative weighting -->
+       </when> <!-- rsw -->
+       <when value="esw">
+              <conditional name="eweighting">
+		<param name="effectiveWeight_selector" type="select" label="Effective Sequence weighting strategies" help="Alternative effective sequence weighting strategies">
+        		<option  selected = "yes" value="eent">Adjust effective sequence number to achieve relative entropy target</option>
+        		<option value="eclust">Effective sequence number is number of single linkage clusters</option>
+                     <option value="eset">Effective sequence number for all models</option>
+        		<option value="enone">No effective weighting</option>
+      		</param> 
+                <when value ="eent">
+   	 		<param name="ere" type="float" value="1.5" label="Set minimum entropy or position" help="Set minimum rel entropy or position" />
+                     <param name="esigma" type="float" value="45.0" label="Sigma parameter" help="Set sigma param" />
+   		</when>
+                <when value ="eclust">
+   	 		<param name="eid" type="float" value="0.62" label="Fractional identity cutoff" help="Set fractional identity cutoff" />
+   		</when>
+              <when value ="eset">
+   	 		<param name="eset" type="integer" value="40" label="Effective sequence number for all models" help="St effective sequence number for all models" />
+   		</when>
+
+          </conditional>  <!-- Effective weighting -->
+       </when> <!-- esw -->
+       <when value="no" />
+     </conditional> <!-- Weighting -->
+  </when>  <!-- full -->
+ </conditional>  <!-- params -->
+  </inputs>
+  <outputs>
+    <data format="txt" name="aligned_out"  label="#echo os.path.splitext ( str ( $msafile.name ) ) [ 0 ] #.txt "/>
+    <data format="txt"  name="hmmfile"  label="#echo os.path.splitext ( str ( $msafile.name ) ) [ 0 ] #.hmm "/>
+  </outputs>
+  
+  <tests>
+    <test>
+      
+    </test>
+  </tests>
+  
+  <help>   
+</help>
+</tool>

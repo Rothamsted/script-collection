@@ -1,0 +1,17 @@
+<tool id="hmmalign" name="HMMALIGN">
+  <description>- align sequences to an HMM profile using an alignment file, its HMM profile and a metagenome</description>
+  <command interpreter="python">hmmalign_new.py $alignment_out $alignment $hmm_file $metagenome</command>
+  <inputs>
+    <param format="txt" name="alignment" type="data" label="File that contains the *clean DNA* reference alignment, in Stockholm format "/>
+    <param format="txt" name="hmm_file" type="data" label="Output .hmm file from the hmmbuild step "/>
+    <param format="txt" name="metagenome" type="data" label=" The metagenomic sequences to be placed, in FASTA format"/>
+  </inputs>
+  <outputs>
+    <data format="txt" name="alignment_out" label="#echo os.path.splitext ( str ( $alignment.name ) ) [ 0 ] #.aligned.sto"/>
+  </outputs>
+
+  <help>
+	hmmalign - align sequences to an HMM profile
+  </help>
+
+</tool>
