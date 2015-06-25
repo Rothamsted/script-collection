@@ -1,0 +1,16 @@
+<tool id="hmmsearch_extract_genomic_sequence" name="Step 7 and 11: Extract genomic sequence using hmmsearch results">
+  <description>for each target id in the file</description>
+  <command interpreter="perl">hmmsearch_extract_genomic_sequence_new.pl $input $input1 $output</command>
+  <inputs>
+    <param format="tabular" name="input" type="data" label="Hmmsearch output file"/>
+    <param format="fasta" name="input1" type="data" label="Fasta file with genomic sequences"/>
+  </inputs>
+  <outputs>
+    <data format="fasta" name="output" />
+  </outputs>
+
+  <help>
+	Extract sequences using hmsearch result file 
+  </help>
+
+</tool>

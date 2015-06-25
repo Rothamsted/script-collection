@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<tool id="HMM_SEARCH" name="Step 5: HMMSEARCH" version="Hmmer 3.1 beta">
+  
+  <requirements>
+  </requirements>
+  <description>- search profile(s) against a sequence database</description>
+  <command>
+ 
+ ## Begin hmmsearch command line
+    
+  hmmsearch
+  --cpu $numthreads
+  --notextw
+  --noali
+  #if str($params.settingsType) == "full":
+
+       #if str($params.control.report_include_selector) =="yes":
+           #if str($params.control.thresholds.thresholds_selector)=="revalue":
+                -E $params.control.thresholds.rE
+                --domE $params.control.thresholds.rdomE
+           #elif str($params.control.thresholds.thresholds_selector)=="rscore":
+                -T $params.control.thresholds.rT
+                --domT $params.control.thresholds.rdomT 
+           #elif str($params.control.thresholds.thresholds_selector)=="ievalue":
+                 --incE $params.control.thresholds.iincE
+                 --incdomE $params.control.thresholds.iincdomE
+           #elif str($params.control.thresholds.thresholds_selector)=="iscore":
+                 --incT $params.control.thresholds.iincT
+                 --incdomT $params.control.thresholds.iincdomT
+           #elif str($params.control.thresholds.thresholds_selector)=="rievalue":
+                   -E $params.control.thresholds.riE
+                   --domE $params.control.thresholds.ridomE
+                   --incE $params.control.thresholds.riincE
+                   --incdomE $params.control.thresholds.riincdomE
+           #elif str($params.control.thresholds.thresholds_selector) == "riscore":
+                   -T $params.control.thresholds.riT
+                   --domT $params.control.thresholds.ridomT 
+                   --incT $params.control.thresholds.riincT
+                   --incdomT $params.control.thresholds.riincdomT
+            #end if
+            #if str($params.control.controlling.controlling_selector)=="yes":
+
+          		#if str($params.control.controlling.aheuristics.acceleration_heuristics_selector)=="max":
+              		$params.control.controlling.aheuristics.max
+          		#elif str($params.control.controlling.aheuristics.acceleration_heuristics_selector)=="nobias":
+
+              		$params.control.controlling.aheuristics.nobias
+              		--F1 $params.control.controlling.aheuristics.F1
+              		--F2 $params.control.controlling.aheuristics.F2
+              		--F3 $params.control.controlling.aheuristics.F3
+          		#end if
+          	#end if
+
+           #end if
+           #if str($params.control.report_include_selector) =="no":
+               #if str($params.control.controlling1.controlling_selector1)=="yes":
+
+          		#if str($params.control.controlling1.aheuristics1.acceleration_heuristics_selector1)=="max1":
+              		$params.control.controlling1.aheuristics1.max2
+                             #if str($params.control.controlling1.aheuristics1.model_specific_thresholding.model_specific_thresholding_selector)=="yes":
+                 			$params.control.controlling1.aheuristics1.model_specific_thresholding.model_selector
+		    		 #end if
+				 
+          		#elif str($params.control.controlling1.aheuristics1.acceleration_heuristics_selector1)=="nobias1":
+
+              		$params.control.controlling1.aheuristics1.nobias2
+              		--F1 $params.control.controlling1.aheuristics1.F11
+              		--F2 $params.control.controlling1.aheuristics1.F22
+              		--F3 $params.control.controlling1.aheuristics1.F33
+                            #if str($params.control.controlling1.aheuristics1.model_specific_thresholding1.model_specific_thresholding_selector1)=="yes":
+                 			$params.control.controlling1.aheuristics1.model_specific_thresholding1.model_selector1
+		    		 #end if
+	
+          		#end if
+          	   #end if
+		   
+           #end if
+
+   #end if 
+  -o $aligned_out
+  ##-A $allhits_out
+  ##--tblout $tblout
+  ##--domtblout $domtblout
+  ##--pfamtblout $pfamtblout
+  $hmmfile 
+  $seqdb
+  </command>
+  
+  <inputs>  
+  <param name="numthreads" type="integer" value="4" label="Number of CPU" help="Number of parallel CPU workers for multithreads "/>
+  <param name="hmmfile" type="data" format="txt" label="Profile hmm file" help="Specify the profile hmm file"/>
+  <param name="seqdb" type="data" format="fasta" label="Sequence database" help="Sequence database"/>
+ <!-- <param name="evalue" type="float" value="10.0" label="E-value cutoff" help="report sequences less than or equal to this E-value threshold in output  [10.0] "/> -->
+    <conditional name="params">
+	<param name="settingsType" type="select" label="HMMSEARCH settings to use" help="You can use the default settings or set custom values for any of hmmsearch's parameters.">
+ 		<option value="preSet">Use Defaults</option>
+		<option value="full">Full parameter list</option>
+ 	</param>
+ 	<when value="preSet" />
+ 	<!-- Full/advanced params. -->
+     <when value="full">
+   <!-- Reporting thresholds and Inclusion thresholds-->
+    <conditional name="control">
+   	 <param name="report_include_selector" type="select" label="Do you want to control reporting and inclusion thresholds">
+   	    <option value="yes"  selected="True">Yes</option>
+   	    <option value="no">No</option>
+   	 </param>
+
+        <when value="yes">
+   	 	<conditional name="thresholds"> 
+       	<param name="thresholds_selector" type="select" size="250" label="Select which threshold option to use" help =" Options controlling reporting thresholds and options for 
+        inclusion thresholds together with options for model-specific score thresholding">
+   	    		<option value="revalue">Show target sequences hits and domain hits that meet the chosen REPORTING E-values threshold</option>
+           		<option value="rscore">Show target sequences hits and domain hits that meet the chosen REPORTING bit scores threshold</option>
+           		<option value="ievalue">Show target sequences hits and domain hits that meet the chosen INCLUSION E-values threshold</option>
+          		 <option value="iscore">Show target sequences and domain hits that meet the chosen INCLUSION bit scores threshold</option>
+           		<option value="rievalue">Show target sequences and domain hits that meet both the chosen REPORTING and INCLUSION E-value threshold</option>
+           		<option value="riscore">Show target sequences and domain hits that meet both the chosen REPORTING and INCLUSION bit scores threshold</option>
+   	 	</param>
+        	<when value="revalue">
+            		<param name="rE" type="float" value="10.0" label="Reporting sequence E-value threshold" help="Report sequences having E-values less than or equal to this E-value threshold in output" />
+            		<param name="rdomE" type="float" value="10.0" label="Reporting domain E-value threshold" help="Report domains having E-values less than or equal to this E-value threshold in output" />
+        	</when>
+        	<when value="rscore">
+            		<param name="rT" type="float" value="800.0" label="Reporting sequence bit score threshold" help="Report sequences having bit scores less than or equal to this bit score threshold in the output" />
+            		<param name="rdomT" type="float" value="800.0" label="Reporting domain bit score threshold" help="Report domains having bit scores less than or equal to this bit score threshold in output" />
+        	</when>
+        	<when value="ievalue">
+            		<param name="iincE" type="float" value="10.0" label="Inclusion sequence E-value inclusion threshold" help="Include sequences having E-values less than or equal to this E-value threshold in output" />
+            		<param name="iincdomE" type="float" value="10.0" label="Inclusion domain E-value threshold" help="Include domains having E-values less than or equal to this E-value threshold in output" />
+        	</when>
+        	<when value="iscore">
+            		<param name="iincT" type="float" value="800.0" label="Inclusion Sequence bit score threshold" help="Include sequences having bit scores less than or equal to this bit scores threshold in output" />
+            		<param name="iincdomT" type="float" value="800.0" label="Inclusion Domain bit score threshold" help="Include sequences having bit scores less than or equal to this bit scores threshold in output" />
+        	</when>
+        	<when value="rievalue">
+            		<param name="riE" type="float" value="10.0" label="Reporting sequence E-value threshold" help="Report having E-values less than or equal to this E-value threshold in output" />
+            		<param name="ridomE" type="float" value="10.0" label="Reporting Domain E-value threshold" help="Report domains having E-values threshold in output" />
+            		<param name="riincE" type="float" value="10.0" label="Inclusion sequence E-value threshold" help="Include sequences having E-values less than or equal to this E-value threshold in output" />
+            		<param name="riincdomE" type="float" value="10.0" label="Inclusion domain E-value threshold" help="Include domains having E-values less than or equal to this E-value threshold in output" />
+        	</when>
+         	<when value="riscore">
+            		<param name="riT" type="float" value="800.0" label="Reporting sequence E-value threshold" help="Report sequences having bit scores less than or equal to this bit score threshold in output" />
+            		<param name="ridomT" type="float" value="800.0" label="reporting domain E-value threshold" help="Report sequences having bit scores less than or equal to this bit score threshold in output" />
+            		<param name="riincT" type="float" value="800.0" label="Inclusion sequence E-value threshold" help="Include sequences having bit scores less than or equal to this bit scores threshold in output" />
+            		<param name="riincdomT" type="float" value="800.0" label="Inclusion domain E-value threshold" help="Include sequences having bit scores less than or equal to this bit scores threshold in output1" />
+        	</when>
+           </conditional> <!-- Reporting thresholds --> 
+            <!-- Options controlling acceleration heuristics-->
+    <conditional name="controlling">
+      <param name="controlling_selector" type="select" label="Do you want to control the acceleration pipeline" help="">
+   	   	<option value="yes" selected="True">Yes</option>
+   	   	<option value="no" >No</option>
+   	</param>
+       <when value="yes">
+            <conditional name="aheuristics"> 
+   	 		<param name="acceleration_heuristics_selector" type="select" label="Do you want to control acceleration heuristicss" help="Options controlling acceleration heuristics">
+   	    			<option value="max" selected="True">Turn off all filters, including the bias filter</option>
+   	   			 <option value="nobias">Turn off the bias filter use MSV filter step, Viterbi filter step and Foward filter step</option>
+   	 		</param> 
+                     <when value="max">
+              		<param name="max" type="boolean" truevalue="--max" falsevalue="" selected="False" label="Turn all heuristic filters off (less speed, more power)"/>
+			</when>
+			<when value="nobias">
+  	   			<param name="F1" type="float" value="0.02" label="Stage 1" help="Stage 1 (MSV) threshold"/>
+   	   			<param name="F2" type="float" value="1e-3" label="Stage 2" help="Stage 2 (Vit) threshold"/>
+  	    			<param name="F3" type="float" value="1e-5" label="stage 3" help="Stage 3 (Fwd) threshold"/>
+   	    			<param name="nobias" type="boolean" truevalue="--nobias" falsevalue="" selected="False" label="turn off composition bias filter"/>
+			</when>
+             </conditional>
+        </when>
+        <when value="no" />
+    </conditional>   
+   </when>
+   <when value="no">
+          <!-- Options controlling acceleration heuristics-->
+    <conditional name="controlling1">
+      <param name="controlling_selector1" type="select" label="Do you want to control the acceleration pipeline" help="">
+   	   	<option value="yes"  selected="True">Yes</option>
+   	   	<option value="no">No</option>
+   	</param>
+       <when value="yes">
+            <conditional name="aheuristics1"> 
+   	 		<param name="acceleration_heuristics_selector1" type="select" label="Do you want to control acceleration heuristicss" help="Options controlling acceleration heuristics">
+   	    			<option value="max1">Turn off all filters, including the bias filter</option>
+   	   			 <option value="nobias1"  selected="True">Turn off the bias filter use MSV filter step, Viterbi filter step and Foward filter step</option>
+   	 		</param> 
+                     <when value="max1">
+              		<param name="max2" type="boolean" truevalue="--max" falsevalue="" selected="False" label="Turn all heuristic filters off (less speed, more power)"/>
+                            
+				<conditional name="model_specific_thresholding">
+   	 				<param name="model_specific_thresholding_selector" type="select" label="Do you want to specify model-specific thresholding" help="Options controlling model-specific thresholding">
+   	   				 	<option value="yes">Yes</option>
+   	   			 		 <option value="no" selected="True">No</option>
+   	 				</param>
+   	 				<when value="yes">
+					<param name="model_selector" type="select" label="model" display="radio" help="Select a model-specific threshold">
+        					<option  selected = "yes" value="--cut_ga">use profile's GA gathering cutoffs to set all thresholding</option>
+        					<option value="--cut_nc">use profile's NC noise cutoffs to set all thresholding</option>
+        					<option value="--cut_tc">Use profile's TC trusted cutoffs to set all thresholding</option>
+        				</param> 
+        		 		</when>
+      			 	<when value="no" />
+   		 	</conditional> <!--  Controlling model-specific thresholding -->
+
+			</when>
+			<when value="nobias1">
+  	   			<param name="F11" type="float" value="0.02" label="Stage 1" help="Stage 1 (MSV) threshold"/>
+   	   			<param name="F22" type="float" value="1e-3" label="Stage 2" help="Stage 2 (Vit) threshold"/>
+  	    			<param name="F33" type="float" value="1e-5" label="stage 3" help="Stage 3 (Fwd) threshold"/>
+   	    			<param name="nobias2" type="boolean" truevalue="--nobias" falsevalue="" selected="False" label="turn off composition bias filter"/>
+                             <conditional name="model_specific_thresholding1">
+   	 				<param name="model_specific_thresholding_selector1" type="select" label="Do you want to specify model-specific thresholding" help="Options controlling model-specific thresholding">
+   	   				 	<option value="yes"  selected="True">Yes</option>
+   	   			 		 <option value="no">No</option>
+   	 				</param>
+   	 				<when value="yes">
+					<param name="model_selector1" type="select" label="model" display="radio" help="Select a model-specific threshold">
+        					<option  selected = "yes" value="--cut_ga">use profile's GA gathering cutoffs to set all thresholding</option>
+        					<option value="--cut_nc">use profile's NC noise cutoffs to set all thresholding</option>
+        					<option value="--cut_tc">Use profile's TC trusted cutoffs to set all thresholding</option>
+        				</param> 
+        		 		</when>
+      			 	<when value="no" />
+   		 	</conditional> <!--  Controlling model-specific thresholding -->
+
+                            
+			</when>
+             </conditional>
+        </when>
+        <when value="no" />
+    </conditional>   
+       </when>
+    </conditional><!-- Options controlling reporting and inclusion thresholds--> 
+ </when>  <!-- full -->
+ </conditional>  <!-- params -->
+
+  </inputs>
+  <outputs>
+    <data format="txt" name="aligned_out"  label="#echo os.path.splitext ( str ( $hmmfile.name ) ) [ 0 ] #.hmmsearch.aligned_out.txt "/>
+    <!--<data format="txt" name="allhits_out" label="#echo os.path.splitext ( str ( $hmmfile.name ) ) [ 0 ] #.hmmsearch.allhits_out.txt "/>-->
+    <!--<data format="txt" name="tblout"  label="#echo os.path.splitext ( str ( $hmmfile.name ) ) [ 0 ] #.hmmsearch.per-sequence_hits.txt "/>-->
+    <!--<data format="txt" name="domtblout" label="#echo os.path.splitext ( str ( $hmmfile.name ) ) [ 0 ] #.hmmsearch.per-domain_hits.txt "/>-->
+    <!--<data format="txt" name="pfamtblout" label="#echo os.path.splitext ( str ( $hmmfile.name ) ) [ 0 ] #.hmmsearch.hits-domain-pfam-format.txt "/>-->
+  </outputs>
+  
+  <tests>
+    <test>
+      
+    </test>
+  </tests>
+  
+  <help>   
+</help>
+</tool>
+
+    

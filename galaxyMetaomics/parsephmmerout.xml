@@ -1,0 +1,15 @@
+<tool id="phmmerOurParse" name="Step 10: PhmmerGetSeqIDs">
+  <description>Extracting metagenomic reads ids from phmmer tabular output</description>
+  <command interpreter="perl"> parsephmmerout.pl  $input  $output</command>
+  <inputs>
+    <param format="tabular" name="input" type="data" label="Phmmer tabular output "/>
+  </inputs>
+  <outputs>
+   	<data format="tabular" name="output" type="data"  label="#echo os.path.splitext ( str ( $input.name ) ) [ 0 ] #.txt"/>
+  </outputs>
+
+  <help>
+	Phmmer tabular output parser (Extra unique metagenomics read ids)
+  </help>
+
+</tool>

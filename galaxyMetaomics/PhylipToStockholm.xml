@@ -1,0 +1,22 @@
+<tool id="phyliptosto" name="Step 2: Phy_Sto">
+  <description> converting from Phylip to Stockholm format</description>
+  <command interpreter="perl">PhylipToStockholm.pl $input $output</command>
+  <inputs>
+    <param format="txt" name="input" type="data" label="File in PHYLIP Format"/>
+  </inputs>
+  <outputs>
+    <data format="txt" name="output" label="#echo os.path.splitext ( str ( $input.name ) ) [ 0 ] #.sto" from_work_dir="" />
+  </outputs>
+
+  <tests>
+    <test>
+      <!--<param name="input" value="list.txt"/>
+      <output name="out_file1" file="uniprot_id.txt"/>-->
+    </test>
+  </tests>
+
+  <help>
+This tool converts file in relax phylip format to stockholm format
+  </help>
+
+</tool>

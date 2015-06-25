@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<tool id="NHMMER" name="NHMMER" version="Hmmer 3.1 beta">
+  
+  <requirements>
+  </requirements>
+  <description>- search a DNA model or alignment against a DNA database</description>
+  <command>
+ 
+ ## Begin nhmmer command line
+    
+  nhmmer
+  --notextw
+  --cpu $numthreads
+  -E $evalue
+  -o $aligned_out
+  -A $allhits_out
+  --tblout $tblout
+  --dfamtblout $dfamtblout
+  --aliscoresout $aliscoresout
+  --hmmout $hmmout
+  $query 
+  $target
+  </command>
+  
+  <inputs>  
+  <param name="numthreads" type="integer" value="4" label="Number of CPU" help="Number of parallel CPU workers for multithreads "/>
+   <param name="filetype_selector" type="select" display="radio" label="File type" help="Specify that all sequences in seqfile are proteins or DNA or RNA ">
+        <option selected = "yes" value="--dna">DNA</option>
+        <option value="--rna">RNA</option>
+      </param> 
+  <param name="query" type="data" format="text" label="Query file" help="Query hmmfile or alignment file"/>
+  <param name="target" type="data" format="fasta" label="Target file" help="Target sequence file"/>
+  <param name="evalue" type="float" value="10.0" label="E-value cutoff" help="report sequences less than or equal to this E-value threshold in output  [10.0] "/>
+  <!-- params -->
+   <conditional name="params">
+	<param name="settingsType" type="select" label="NHMMER settings to use" help="You can use the default settings or set custom values for any of nhmmer's parameters.">
+ 		<option value="preSet">Use Defaults</option>
+		<option value="full">Full parameter list</option>
+ 	</param>
+ 	<when value="preSet" />
+ 	<!-- Full/advanced params. -->
+     <when value="full">
+  <!-- Reporting thresholds -->
+   	<conditional name="rthresholds">
+   	 <param name="rthresholds_selector" type="select" label="Do you want to specify reporting thresholds" help="Select reporting thresholds">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="E" type="float" value="10.0" label="Sequence E-value threshold" help="report sequences less than or equal to this E-value threshold in output" />
+            <param name="T" type="float" value="500" label="score threshold" help="report sequences greater than or equal to this score threshold in output " />
+        </when>
+       <when value="no" />
+    </conditional> <!-- Reporting thresholds -->
+
+   <!-- Significant thresholds -->
+   <conditional name="sthresholds">
+   	 <param name="sthresholds_selector" type="select" label="Do you want to specify significant thresholds" help="Options controlling inclusion (significance) thresholds">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="incE" type="float" value="10.0" label="Sequence E-value threshold" help="consider sequences less than or equal to this E-value threshold as significant" />
+            <param name="incT" type="float" value="500" label="score threshold" help="consider sequences greater than or equal to this score threshold as significant" />
+        </when>
+       <when value="no" />
+    </conditional> <!-- model_specific_thresholding -->
+
+
+   <!-- Significant thresholds -->
+    <conditional name="model_specific_thresholding">
+   	 <param name="model_specific_thresholding_selector" type="select" label="Do you want to specify model-specific thresholding" help="Options controlling model-specific thresholding">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+	<param name="model_selector" type="select" label="model" display="radio" help="Select a model-specific threshold">
+        	<option  selected = "yes" value="--cut_ga">use profile's GA gathering cutoffs to set all thresholding</option>
+        	<option value="--cut_nc">use profile's NC noise cutoffs to set all thresholding</option>
+        	<option value="--cut_tc">Use profile's TC trusted cutoffs to set all thresholding</option>
+        </param> 
+         </when>
+       <when value="no" />
+    </conditional> <!--  Controlling model-specific thresholding -->
+
+    <!-- Options controlling acceleration heuristics-->
+ <conditional name="aheuristics"> 
+   	 <param name="acceleration_heuristics_selector" type="select" label="Do you want to control acceleration heuristicss" help="Options controlling acceleration heuristics">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+	<when value="yes">
+                <param name="max" type="boolean" truevalue="--max" falsevalue="" selected="False" label="Turn all heuristic filters off (less speed, more power)"/>
+   		<param name="F1" type="float" value="0.02" label="Stage 1" help="Stage 1 (MSV) threshold"/>
+   		<param name="F2" type="float" value="1e-3" label="Stage 2" help="Stage 2 (Vit) threshold"/>
+  		<param name="F3" type="float" value="1e-5" label="stage 3" help="Stage 3 (Fwd) threshold"/>
+   		<param name="nobias" type="boolean" truevalue="--nobias" falsevalue="" selected="False" label="turn off composition bias filter"/>
+	</when>
+	<when value="no">
+  		 <!-- do nothing -->
+	</when>
+</conditional> <!-- Options controlling acceleration heuristics-->
+
+
+</when>  <!-- full -->
+ </conditional>  <!-- params -->
+  </inputs>
+  <outputs>
+    <data format="txt" name="aligned_out" label="${tool.name} on ${on_string} (Stdout)"/>
+    <data format="txt" name="allhits_out" label="${tool.name} on ${on_string} (multiple alignment of all hits)"/>
+    <data format="txt" name="tblout" label="${tool.name} on ${on_string} ( hits to file in a tabular format)"/>
+    <data format="txt" name="dfamtblout" label="${tool.name} on ${on_string} ( hits to file, in Dfam format)"/>
+    <data format="txt" name="aliscoresout" label="${tool.name} on ${on_string} (scores for each position in each alignment)"/>
+    <data format="txt" name="hmmout" label="${tool.name} on ${on_string} (alignment hmms)"/>
+  </outputs>
+  
+  <tests>
+    <test>
+      <param name="reference_source_selector" value="history" />
+      <param name="ref_file" ftype="fasta" value="bwa-mem-mt-genome.fa"/>
+      <param name="fastq_input_selector" value="paired"/>
+      <param name="fastq_input1" ftype="fastqsanger" value="bwa-mem-fastq1.fq"/>
+      <param name="fastq_input2" ftype="fastqsanger" value="bwa-mem-fastq2.fq"/>
+      <param name="analysis_type_selector" value="illumina"/>
+      <output name="bam_output" ftype="bam" file="bwa-mem-test1.bam" lines_diff="2" />
+    </test>
+  </tests>
+  
+  <help>   
+</help>
+</tool>

@@ -1,0 +1,18 @@
+<tool id="pplacer" name="Step 13: Pplacer ">
+  <description>Place query sequences on a fixed reference phylogenetic tree to maximize phylogenetic likelihood or posterior probability according to a reference</description>
+  <command interpreter="python"> pplacer.py  $tree  $info $refalign $jplace $stat ${refalign.name}</command>
+  <inputs>
+    <param format="txt" name="tree" type="data" label="Best scoring ML Tree output from the RAxML step "/>
+    <param format="txt" name="info" type="data" label="Info file output from the RAxML step "/>
+    <param format="txt" name="refalign" type="data" label="Alignment of Reference Sequences and Metagenome output from the HMMALIGN step, in Stockholm format "/>
+  </inputs>
+  <outputs>
+   <data format="txt" name="jplace" type="data"  label="#echo os.path.splitext ( str ( $refalign.name ) ) [ 0 ] #.jplace" from_work_dir=""/>
+    <data format="txt" name="stat" type="data"  label="#echo os.path.splitext ( str ( $refalign.name ) ) [ 0 ] #.statistics"/>
+  </outputs>
+
+  <help>
+	Pplacer places query sequences (the Metagenome) on a fixed reference phylogenetic tree (Best ML Tree)  to maximize phylogenetic likelihood or posterior probability
+  </help>
+
+</tool>
