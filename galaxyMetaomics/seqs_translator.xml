@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<tool id="SEQ_Translator" name="Step 8: SeqTranslator" version="2.18">
+  
+  <requirements>
+  </requirements>
+  <description>- align sequences to a profile HMM</description>
+  <command interpreter="python" >    
+  seqs_translator.py
+  $infile
+  outname
+  DNA
+  6
+  1
+  NOBIN
+  24 
+  $f1 
+  $f2
+  $f3
+  $f4
+  $f5
+  $f6
+  </command>
+  
+  <inputs>
+   <param name="infile" type="data" format="fasta" label="DNA sequence file" help="DNA sequence file for 6 frame translation"/>
+  </inputs>
+  <outputs>
+   <data format="fasta" name="f1" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame1.fasta"/>
+   <data format="fasta" name="f2" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame2.fasta"/>
+   <data format="fasta" name="f3" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame3.fasta"/>
+   <data format="fasta" name="f4" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame4.fasta"/>
+   <data format="fasta" name="f5" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame5.fasta"/>
+   <data format="fasta" name="f6" type="data"  label="#echo os.path.splitext ( str ( $infile.name ) ) [ 0 ] #.frame6.fasta"/> 
+  </outputs>
+  
+  <tests>
+    <test>
+      
+    </test>
+  </tests>
+  
+  <help>   
+</help>
+</tool>

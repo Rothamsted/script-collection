@@ -1,0 +1,16 @@
+<tool id="ids_hmmsearch" name="Step 6: Extract sequence Ids">
+  <description>from an HMMSearch result file</description>
+  <command interpreter="perl">hmmsearch_getIds.pl $input $output</command>
+  <inputs>
+    <param format="txt" name="input" type="data" label="HMMSearch results"/>
+  </inputs>
+  <outputs>
+    <data format="tabular" name="output" />
+  </outputs>
+
+    <help>
+This tool extracts sequence IDs column from an hmmsearch output file
+  </help>
+
+</tool>
+

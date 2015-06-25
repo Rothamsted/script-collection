@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<tool id="JACK_HMMER" name="JACKHMMER" version="Hmmer 3.1 beta">
+  
+  <requirements>
+  </requirements>
+  <description>- iteratively search a protein sequence against a protein database</description>
+  <command>
+ 
+ ## Begin hmmsearch command line
+    
+  jackhmmer
+  --cpu $numthreads
+  --notextw
+  -E $evalue
+  -o $aligned_out
+  -A $allhits_out
+  --tblout $tblout
+  --domtblout $domtblout
+  --chkhmm $chkhmm
+  --chkali $chkali
+  $seqfile 
+  $seqdb
+  </command>
+  
+  <inputs> 
+  <param name="numthreads" type="integer" value="4" label="Number of CPU" help="Number of parallel CPU workers for multithreads "/>  
+  <param name="seqfile" type="data" format="text" label="Sequence file" help="Specify the sequence file"/>
+  <param name="seqdb" type="data" format="fasta" label="Sequence database" help="Sequence database"/>
+  <param name="evalue" type="float" value="10.0" label="E-value cutoff" help="report sequences less than or equal to this E-value threshold in output  [10.0] "/>
+
+  <!-- params -->
+   <conditional name="params">
+	<param name="settingsType" type="select" label="JACKHMMER settings to use" help="You can use the default settings or set custom values for any of jackhmmer's parameters.">
+ 		<option value="preSet">Use Defaults</option>
+		<option value="full">Full parameter list</option>
+ 	</param>
+ 	<when value="preSet" />
+ 	<!-- Full/advanced params. -->
+     <when value="full">
+
+     <!-- Options controlling scoring system in first iteration -->
+   	<conditional name="ssystem">
+   	 <param name="ssystem_selector" type="select" label="Do you want to specify options to control the scoring system in first iteration" help="Options controlling scoring system in first iteration">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="popen" type="float" value="0.7" label="Gap open " help="Gap open probability" />
+            <param name="pextend" type="float" value="0.8" label="Gap extend" help="Gap extend probability " />
+        </when>
+       <when value="no" />
+    </conditional> <!-- Reporting thresholds -->
+
+     <!-- Reporting thresholds -->
+   	<conditional name="rthresholds">
+   	 <param name="rthresholds_selector" type="select" label="Do you want to specify reporting thresholds" help="Select reporting thresholds">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="E" type="float" value="10.0" label="Sequence E-value threshold" help="report sequences less than or equal to this E-value threshold in output" />
+            <param name="T" type="float" value="500" label="score threshold" help="report sequences greater than or equal to this score threshold in output " />
+            <param name="domE" type="float" value="10.0" label="Domain E-value threshold" help="report domains less than or equal to this E-value threshold in output" />
+            <param name="domT" type="float" value="800" label="Domain score threshold" help=" report domains greater than or equal to this score cutoff in output " />
+        </when>
+       <when value="no" />
+    </conditional> <!-- Reporting thresholds -->
+   <!-- Significant thresholds -->
+   <conditional name="sthresholds">
+   	 <param name="sthresholds_selector" type="select" label="Do you want to specify significant thresholds" help="Options controlling inclusion (significance) thresholds">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="incE" type="float" value="10.0" label="Sequence E-value threshold" help="consider sequences less than or equal to this E-value threshold as significant" />
+            <param name="incT" type="float" value="500" label="score threshold" help="consider sequences greater than or equal to this score threshold as significant" />
+            <param name="incdomE" type="float" value="10.0" label="Domain E-value threshold" help="consider domains less than or equal to this E-value threshold as significant" />
+            <param name="incdomT" type="float" value="800" label="Domain score threshold" help="consider domains greater than or equal to this score threshold as significant" />
+        </when>
+       <when value="no" />
+    </conditional> <!-- model_specific_thresholding -->
+  
+    <!-- Options controlling acceleration heuristics-->
+ <conditional name="aheuristics"> 
+   	 <param name="acceleration_heuristics_selector" type="select" label="Do you want to control acceleration heuristicss" help="Options controlling acceleration heuristics">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+	<when value="yes">
+                <param name="max" type="boolean" truevalue="--max" falsevalue="" selected="False" label="Turn all heuristic filters off (less speed, more power)"/>
+   		<param name="F1" type="float" value="0.02" label="Stage 1" help="Stage 1 (MSV) threshold"/>
+   		<param name="F2" type="float" value="1e-3" label="Stage 2" help="Stage 2 (Vit) threshold"/>
+  		<param name="F3" type="float" value="1e-5" label="stage 3" help="Stage 3 (Fwd) threshold"/>
+   		<param name="nobias" type="boolean" truevalue="--nobias" falsevalue="" selected="False" label="turn off composition bias filter"/>
+	</when>
+	<when value="no">
+  		 <!-- do nothing -->
+	</when>
+</conditional> <!-- Options controlling acceleration heuristics-->
+
+<conditional name="weighting">
+   	 <param name="weighting_selector" type="select" label="Do you want to Use any sequence weighting strategies" help="Using alteranative relative or effective sequence weighting strategies">
+   	    <option value="rsw">Alternative relative sequence weighting</option>
+           <option value="esw">Alternative effective sequence weighting</option>
+   	    <option value="no" selected="True">Default</option>
+   	 </param>
+       <when value="rsw">
+              <conditional name="rweighting">
+		<param name="relativeWeight_selector" type="select" label="Sequence weighting strategies" help=" Alternative relative sequence weighting">
+        		<option  selected = "yes" value="wpb">Henikoff position-based sequence weighting scheme</option>
+        		<option value="wgsc">Gerstein/Sonnhammer/Chothia weighting algorithm</option>
+        		<option value="wblosum">Use the same clustering scheme that was used to weight data in calculating BLOSUM subsitution matrices</option>
+      			<option  value="wnone">No relative weights. All sequences are assigned uniform weight.</option>
+      			<option  value="wgiven">Use weights as given in MSA file</option>
+      		</param> 
+    		<when value ="wblosum">
+   	 		<param name="wid" type="float" value="0.62" label="Identity cutoff" help="For Blosum set identity cutoff " />
+   		</when>
+            </conditional>  <!-- Relative weighting -->
+       </when> <!-- rsw -->
+       <when value="esw">
+              <conditional name="eweighting">
+		<param name="effectiveWeight_selector" type="select" display="radio" label="Effective Sequence weighting strategies" help="Alternative effective sequence weighting strategies">
+        		<option  selected = "yes" value="eent">Adjust effective sequence number to achieve relative entropy target</option>
+        		<option value="eclust">Effective sequence number is number of single linkage clusters</option>
+        		<option value="enone">No effective weighting</option>
+      		</param> 
+                <when value ="eent">
+   	 		<param name="ere" type="integer" value="6" label="Set minimum entropy or position" help="Set minimum rel entropy or position" />
+                        <param name="eset" type="integer" value="12" label="Effective sequence number" help="set effective sequence number" />
+                        <param name="esigma" type="float" value="0.45" label="Sigma parameter" help="Set sigma param" />
+   		</when>
+                <when value ="eclust">
+   	 		<param name="eid" type="float" value="0.62" label="Fractional identity cutoff" help="Set fractional identity cutoff" />
+                     <param name="eset" type="integer" value="12" label="Effective sequence number" help="set effective sequence number" />
+   		</when>
+          </conditional>  <!-- Effective weighting -->
+       </when> <!-- esw -->
+       <when value="no" />
+     </conditional> <!-- Weighting -->
+   <!-- Control of E-value calibration -->
+   <conditional name="evalue_calibration">
+   	 <param name="evalue_calibration_selector" type="select" label="Do you want to Use E-value calibration controls" help="Control of E-value calibration">
+   	    <option value="yes">Yes</option>
+   	    <option value="no" selected="True">No</option>
+   	 </param>
+   	 <when value="yes">
+            <param name="EmL" type="integer" value="200" label="Length of sequences for MSV Gumbel" help="length of sequences for MSV Gumbel mu fit" />
+            <param name="EmN" type="integer" value="200" label="Number of sequences for MSV Gumbel" help="number of sequences for MSV Gumbel mu fit " />
+            <param name="EvL" type="integer" value="200" label="Length of sequences for Viterbi Gumbel" help="length of sequences for Viterbi Gumbel mu fit" />
+            <param name="EvN" type="integer" value="200" label="Number of sequences for Viterbi Gumbel" help="number of sequences for Viterbi Gumbel mu fit " />
+            <param name="EfL" type="integer" value="200" label="Length of sequences for Forward exp tail" help="length of sequences for Forward exp tail tau fit " />
+            <param name="EfN" type="integer" value="200" label="Number of sequences for Forward exp tail" help="number of sequences for Forward exp tail tau fit " />
+            <param name="Eft" type="float" value="0.04" label="Tail mass for Forward exponential tail" help="tail mass for Forward exponential tail tau fit " />
+   	 </when>
+       <when value="no" />
+    </conditional> <!-- E-value Calibration -->
+
+
+</when>  <!-- full -->
+ </conditional>  <!-- params -->
+
+  </inputs>
+  <outputs>
+    <data format="txt" name="aligned_out" label="${tool.name} on ${on_string} (Stdout)"/>
+    <data format="txt" name="allhits_out" label="${tool.name} on ${on_string} (multiple alignment)"/>
+    <data format="txt" name="tblout" label="${tool.name} on ${on_string} (per-sequence hits)"/>
+    <data format="txt" name="domtblout" label="${tool.name} on ${on_string} (per-domain hits)"/>
+    <data format="txt" name="chkhmm" label="${tool.name} on ${on_string} (HMM checkpoints)"/>
+    <data format="txt" name="chkali" label="${tool.name} on ${on_string} (alignment checkpoints)"/>
+  </outputs>
+  
+  <tests>
+    <test>
+      <param name="reference_source_selector" value="history" />
+      <param name="ref_file" ftype="fasta" value="bwa-mem-mt-genome.fa"/>
+      <param name="fastq_input_selector" value="paired"/>
+      <param name="fastq_input1" ftype="fastqsanger" value="bwa-mem-fastq1.fq"/>
+      <param name="fastq_input2" ftype="fastqsanger" value="bwa-mem-fastq2.fq"/>
+      <param name="analysis_type_selector" value="illumina"/>
+      <output name="bam_output" ftype="bam" file="bwa-mem-test1.bam" lines_diff="2" />
+    </test>
+  </tests>
+  
+  <help>   
+</help>
+</tool>

@@ -1,0 +1,83 @@
+<tool id="Fasta2Phy" name="Step 1:Convert FASTA to Phylip (seqConverter)" version="0.1.0">
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <expand macro="stdio" />
+    <command><![CDATA[
+        perl seqConverterG.pl -d"$input1" -ope -O"$output1"
+    ]]></command>
+    <inputs>
+        <param type="data" name="input1" format="fasta" />
+    </inputs>
+    <outputs>
+        <data name="output1" format="hmm" from_work_dir="BPP_reference_nucleotide_seqs_CDHIT_MAFFT_MSA.hmm" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input1" value="BPP_reference_nucleotide_seqs_CDHIT_MAFFT_MSA.fasta"/>
+            <output name="output1" file="BPP_reference_nucleotide_seqs_CDHIT_MAFFT_MSA.hmm"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Usage: seqConverter.pl -d<filename> -o<f|n|pc|pe|s> [-a] [-c<number>] [-g]
+       [-G] [-H] [-i<f|g|n|p|s>] [-j] [-l<number>] [-n] [-r<a|i>] [-s] [-t]
+       [-u] [-v] [-h]
+Version: 1.2
+Options: -a = print out accession numbers instead of taxon labels for nexus
+              and phylip output
+         -c<number> = global genetic code (to be used for translation unless
+                      otherwise specified) (default = standard code; end
+                      with * to override local settings)
+                      1: standard
+                      2: vertebrate mitochondrial
+                      3: yeast mitochondrial
+                      4: mold, protozoan and colenterate mitochondrial and  mycoplasam/spiroplasma
+                      5: invertebrate mitochondrial
+                      6: ciliate, dasycladacean and hexamita nuclear
+                      9: echinoderm mitochondrial
+                      10: euplotid nuclear
+                      11: bacterial and plant plastid
+                      12: alternative yeast nuclear
+                      13: ascidian mitochondrial
+                      14: alternative flatworm mitochondrial
+                      15: Blepharisma nuclear
+                      16: chlorophycean mitochondrial
+                      21: trematode mitochondrial
+                      22: Scenedesmus obliquus mitochondrial
+                      23: Thraustochytrium mitochondrial
+         -d<filename> = file containing raw sequence information; * = batch
+                        convert all specified file types in working
+                        directory (suffixes must be .fasta / .fas, .gb
+                        .nexus / .nex, .phylip / .ph, or .seal as
+                        appropriate)
+         -g = do not convert ~ gap characters (e.g., from BioEdit) to -
+         -G = convert flanking gaps to Ns
+         -H = convert sequence data to haplotype data
+         -i<f|g|n|p|s> = format of sequence file (fasta (f), GenBank (g),
+                         nexus (n), phylip (p), or Se-Al (s)); default =
+                         autodetect
+         -j = produce jackknifed data sets each with a single sequence
+              deleted
+         -l<number> = interleave nexus- and/or phylip-formatted output
+                      (default = sequential) with specified sequence length
+                      (between 10 and 100 inclusive; default = 80);
+                      NOTE: also sets default interleave length for fasta
+                            output
+         -n = convert ambiguous nucleotides to Ns
+         -o<f|n|pc|pe|s> = output results in any or all of fasta (f), nexus
+                           (n), classic or extended phylip (pc or pe),
+                           and/or Se-Al (s) formats (NOTE: flag can be
+                           invoked multiple times)
+         -r<a|i> = order sequences in final output alphabetically by name
+                   (a; default) or in input order from file (i)
+         -s = split data set into individual partitions according to nexus
+              charset statements
+         -t = translate sequences into amino acids
+         -u = interactive user-input mode
+         -h = print this message and quit
+         -v = verbose output
+
+    ]]></help>
+    <expand macro="citations" />
+</tool>
