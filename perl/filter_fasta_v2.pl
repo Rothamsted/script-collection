@@ -3,6 +3,8 @@
 use strict;
 
 ##RUN BY "./filter_fasta_v2.pl > filtered_fa.fasta"
+##Neilfws author
+##Taken from https://www.biostars.org/p/2822/
 
 #CHANGE THESE TO MATCH YOUR FILES
 my $idsfile = "ids.txt";
